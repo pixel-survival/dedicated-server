@@ -7,12 +7,14 @@ const { json } = require('body-parser');
 const Payload = require('./core/Payload');
 const RequiredFields = require('./core/RequiredFields');
 const ServiceResponse = require('./core/ServiceResponse');
+const Log = require('./core/Log');
 
 const config = require('./config/app');
 
 // init
 const app = express();
 const serviceResponse = new ServiceResponse();
+const log = new Log();
 
 app.use(helmet());
 app.use(cors());
@@ -41,4 +43,12 @@ app.post('/logout/', (request, response) => {
     const token = request.body.token;
 })
 
-app.listen(7777);
+app.listen(config.server.port, config.server.host, async () => {
+	log.info(`Server listening on ${config.server.host}:${config.server.port}`);
+});
+
+process.on('uncaughtException', error => {
+	if (error.code === 'EADDRINUSE') {
+		log.error(`Error: address already in use ${config.server.host}:${config.server.port}`);
+	}
+});
