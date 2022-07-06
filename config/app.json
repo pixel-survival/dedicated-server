@@ -1,0 +1,9 @@
+{
+    "server": {
+        "host": "localhost",
+        "port": 81,
+        "headers": {
+            "content-type": ["application/json"]
+        }
+    }
+}
