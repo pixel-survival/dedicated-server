@@ -36,12 +36,33 @@ app.post('/auth/', (request, response) => {
 		return;
 	}
 
-    response.send(payload.get());
-})
+	payload.add('status', 'success');
+	payload.add('data', { token: 123 })
 
-app.post('/logout/', (request, response) => {
-    const token = request.body.token;
-})
+    response.send(payload.get());
+
+	//
+	class Clients {
+		
+	}
+
+	class Player {
+
+	}
+
+	class Client {
+		constructor() {
+			this._player = new Player();
+		}
+	}
+
+	const clients = new Clients();
+	const client = new Client();
+
+	// clients.add(client);
+	// client.sendPacket();
+	// client.on('data', data => {})
+});
 
 app.listen(config.server.port, config.server.host, async () => {
 	log.info(`Server listening on ${config.server.host}:${config.server.port}`);
