@@ -5,16 +5,23 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const { json } = require('body-parser');
 
+const Driver = require('./core/Driver');
+const Query = require('./core/Query');
 const Payload = require('./core/Payload');
 const RequiredFields = require('./core/RequiredFields');
 const ServiceResponse = require('./core/ServiceResponse');
+const TypeConverter = require('./core/TypeConverter');
 const Log = require('./core/Log');
 
 const config = require('./config/app');
 
 // init
+const db = mysql.createPool(config.db.mysql);
 const app = express();
+const driver = new Driver('mysql', db);
+const query = new Query(driver);
 const serviceResponse = new ServiceResponse();
+const typeConverter = new TypeConverter();
 const log = new Log();
 
 app.use(helmet());
