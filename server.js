@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2');
 const helmet = require('helmet');
+const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const { json } = require('body-parser');
 
@@ -40,28 +41,6 @@ app.post('/auth/', (request, response) => {
 	payload.add('data', { token: 123 })
 
     response.send(payload.get());
-
-	//
-	class Clients {
-		
-	}
-
-	class Player {
-
-	}
-
-	class Client {
-		constructor() {
-			this._player = new Player();
-		}
-	}
-
-	const clients = new Clients();
-	const client = new Client();
-
-	// clients.add(client);
-	// client.sendPacket();
-	// client.on('data', data => {})
 });
 
 app.listen(config.server.port, config.server.host, async () => {
