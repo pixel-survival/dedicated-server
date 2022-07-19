@@ -3,15 +3,23 @@ class Query {
     this._driver = driver;
   }
   
-  // async getByField(section, field, value, fields) {
-  //   const response = await this._driver.getByField(section, this._serialization.getSerializatedInput(field, section), value);
+  async getRowByField(section, field, value, fields) {
+    const response = await this._driver.getRowsByField(section, field, value);
 
-  //   if (response.length > 0) {
-  //     return this._serialization.getPayload(response, fields);
-  //   } else {
-  //     return null;
-  //   }
-  // }
+    if (response.length > 0) {
+      if (fields && fields.length > 0) {
+        const payload = {};
+
+        fields.forEach(field => {
+          payload[field] = response[0][field];
+        });
+
+        return payload;
+      }
+    } else {
+      return null;
+    }
+  }
 
   // async searchByField(section, value, fields) {
   //   const response = await this._driver.searchByField(section, value);

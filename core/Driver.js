@@ -8,8 +8,8 @@ class Driver {
     return this._type;
   }
 
-  async getByField(section, field, value) {
-    const response = await this._call('getByField', { section, field, value });
+  async getRowsByField(section, field, value) {
+    const response = await this._call('getRowsByField', { section, field, value });
 
     return response;
   }
@@ -38,8 +38,8 @@ class Driver {
     return await this[`_${this._type}_${method}`](params);
   }
 
-  async _mysql_getByField({ section, field, value }) {
-    const [rows] =  await this._db.promise().query(`SELECT * FROM ${section} WHERE ${field} = ${value}`);
+  async _mysql_getRowsByField({ section, field, value }) {
+    const [rows] =  await this._db.promise().query(`SELECT * FROM ${section} WHERE ${field} = '${value}'`);
 
     return rows;
   }

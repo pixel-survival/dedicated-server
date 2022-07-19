@@ -1,9 +1,21 @@
 {
-    "server": {
-        "host": "localhost",
-        "port": 81,
-        "requiredHeaders": {
-            "content-type": ["application/json"]
-        }
+  "server": {
+    "host": "localhost",
+    "port": 81,
+    "requiredHeaders": {
+      "content-type": ["application/json"]
     }
+  },
+  "db": {
+    "mysql": {
+      "host": "localhost",
+      "user": "root",
+      "password": "",
+      "port": "3306",
+      "database": "ps",
+      "waitForConnections": true,
+      "connectionLimit": 10,
+      "queueLimit": 0
+    }
+  }
 }
