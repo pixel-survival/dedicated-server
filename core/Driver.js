@@ -1,7 +1,10 @@
+const log = require('./Log');
+
 class Driver {
   constructor(type, db) {
     this._type = type;
     this._db = db;
+    this._init();
   }
 
   get type() {
@@ -86,6 +89,20 @@ class Driver {
     
   //   await this._db.promise().query(`UPDATE ${section} ${parts.set} WHERE ${nameId} = ${id}`);
   // }
+
+  async _init() {
+    this._db.query('SELECT 1', error => {
+      const database = this._db.config.connectionConfig.database;
+      const host = this._db.config.connectionConfig.host;
+      const port = this._db.config.connectionConfig.port;
+
+      if (error) {
+        log.error(`No database connection: "${database}" on ${host}:${port}`);
+      } else {
+        log.info(`Database connected: "${database}" on ${host}:${port}`);
+      }
+    })
+  }
 }
 
 module.exports = Driver;

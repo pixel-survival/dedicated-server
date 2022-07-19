@@ -11,7 +11,7 @@ const Payload = require('./core/Payload');
 const RequiredFields = require('./core/RequiredFields');
 const ServiceResponse = require('./core/ServiceResponse');
 const TypeConverter = require('./core/TypeConverter');
-const Log = require('./core/Log');
+const log = require('./core/Log');
 
 const config = require('./config/app');
 
@@ -22,7 +22,6 @@ const driver = new Driver('mysql', db);
 const query = new Query(driver);
 const serviceResponse = new ServiceResponse();
 const typeConverter = new TypeConverter();
-const log = new Log();
 
 app.use(helmet());
 app.use(cors());
