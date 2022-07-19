@@ -57,7 +57,7 @@ class RequiredFields {
 			if (field.type === 'string') {
 				if (value.length < field.length.min || value.length > field.length.max) {
 					this._state = false;
-					this._message = `Value out of range for ${field.name}. Expected: min(${field.length.min}), max(${field.length.max}), instead got: ${value.length}.`;
+					this._message = `Value out of range for ${field.name}. Expected: min ${field.length.min}, max ${field.length.max}, instead got: ${value.length}.`;
 
 					return;
 				}
