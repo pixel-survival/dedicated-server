@@ -31,15 +31,15 @@ app.use(json());
 app.use(serviceResponse.checkInvalidJSON);
 
 app.post('/auth/', async (request, response) => {
-    const login = request.body.login;
-    const password = request.body.password;
-    const payload = new Payload();
-    const requiredFields = new RequiredFields(RequiredFields.auth.login, { login, password });
+  const login = request.body.login;
+  const password = request.body.password;
+  const payload = new Payload();
+  const requiredFields = new RequiredFields(RequiredFields.auth.login, { login, password });
     
-    if (!requiredFields.state) {
-      payload.add('status', 'error');
-      payload.add('message', requiredFields.message);
-      response.send(payload.get());
+  if (!requiredFields.state) {
+    payload.add('status', 'error');
+    payload.add('message', requiredFields.message);
+    response.send(payload.get());
 
     return;
   }
