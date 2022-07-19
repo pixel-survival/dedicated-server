@@ -2,7 +2,7 @@
     "server": {
         "host": "localhost",
         "port": 81,
-        "headers": {
+        "requiredHeaders": {
             "content-type": ["application/json"]
         }
     }
