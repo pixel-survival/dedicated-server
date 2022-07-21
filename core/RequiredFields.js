@@ -35,6 +35,17 @@ class RequiredFields {
       }
 
       if (field.type === 'string') {
+        if(field.rules) {
+          const regexp = new RegExp(field.rules);
+
+          if (value.length > 0 && !regexp.test(value)) {
+            this._state = false;
+            this._message = `Value ${field.name} does not match the rule.`;
+
+            return;
+          }
+        }
+
         if (value.length < field.length.min || value.length > field.length.max) {
           this._state = false;
           this._message = `Value out of range for ${field.name}. Expected: min ${field.length.min}, max ${field.length.max}, instead got: ${value.length}.`;

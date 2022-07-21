@@ -2,6 +2,7 @@
     {
         "name": "login",
         "type": "string",
+        "rules": "^[a-zA-Z0-9]+$",
         "length": {
             "min": 3,
             "max": 30
