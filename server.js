@@ -24,7 +24,7 @@ app.use(json());
 app.use(serviceResponse.checkInvalidJSON);
 
 app.post('/auth/', async (request, response) => {
-  const login = request.body.login;
+  const login = request.body.login.toLowerCase();
   const password = request.body.password;
   const payload = new Payload();
   const requiredFields = new RequiredFields(RequiredFields.auth.login, { login, password });
