@@ -1,5 +1,4 @@
 const express = require('express');
-const mysql = require('mysql2');
 const helmet = require('helmet');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
@@ -9,7 +8,6 @@ const Users = require('./core/Users');
 const Payload = require('./core/Payload');
 const RequiredFields = require('./core/RequiredFields');
 const ServiceResponse = require('./core/ServiceResponse');
-const TypeConverter = require('./core/TypeConverter');
 const log = require('./core/Log');
 const config = require('./config/app');
 const db = require('./core/db');
@@ -18,7 +16,6 @@ const db = require('./core/db');
 const app = express();
 const users = new Users();
 const serviceResponse = new ServiceResponse();
-const typeConverter = new TypeConverter();
 
 app.use(helmet());
 app.use(cors());
@@ -42,9 +39,9 @@ app.post('/auth/', async (request, response) => {
 
   const user = await users.find('login', login);
 
-  if (user && user.password === password) {
+  if (user && user.comparePassword(password)) {
     const token = jwt.sign({ id: user.id }, 'key');
-    const response = await db.query.updateRow('users', user.id, { token });
+    const response = await user.update({ token });
 
     if (response) {
       payload.add('status', 'success');

@@ -8,13 +8,7 @@ class Query {
 
     if (response.length > 0) {
       if (fields && fields.length > 0) {
-        const payload = {};
-
-        fields.forEach(field => {
-          payload[field] = response[0][field];
-        });
-
-        return payload;
+        return this._getDataByFields(fields, response[0]);
       } else {
         return response[0];
       }
@@ -37,6 +31,16 @@ class Query {
     } else {
       return false;
     }
+  }
+
+  _getDataByFields(fields, data) {
+    const payload = {};
+
+    fields.forEach(field => {
+      payload[field] = data[field];
+    });
+
+    return payload;
   }
 }
 
