@@ -5,21 +5,18 @@ const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const { json } = require('body-parser');
 
-const Driver = require('./core/Driver');
-const Query = require('./core/Query');
+const Users = require('./core/Users');
 const Payload = require('./core/Payload');
 const RequiredFields = require('./core/RequiredFields');
 const ServiceResponse = require('./core/ServiceResponse');
 const TypeConverter = require('./core/TypeConverter');
 const log = require('./core/Log');
-
 const config = require('./config/app');
+const db = require('./core/db');
 
 // init
-const db = mysql.createPool(config.db.mysql);
 const app = express();
-const driver = new Driver('mysql', db);
-const query = new Query(driver);
+const users = new Users();
 const serviceResponse = new ServiceResponse();
 const typeConverter = new TypeConverter();
 
@@ -42,29 +39,30 @@ app.post('/auth/', async (request, response) => {
 
     return;
   }
-  
-  const row = await query.getRowByField('users', 'login', login, ['id', 'login', 'password']);
 
-  if (row) {
-    if (password === row.password) {
-      const token = jwt.sign({ id: row.id }, 'key');
+  const user = await users.find('login', login);
 
+  if (user && user.password === password) {
+    const token = jwt.sign({ id: user.id }, 'key');
+    const response = await db.query.updateRow('users', user.id, { token });
+
+    if (response) {
       payload.add('status', 'success');
-      payload.add('data', { token });
+      payload.add('data', { token: response.token });
     } else {
       payload.add('status', 'error');
-      payload.add('message', 'Invalid password.');
+      payload.add('message', 'User update error.');
     }
   } else {
     payload.add('status', 'error');
-    payload.add('message', 'User not found.');
+    payload.add('message', 'Invalid login or password.');
   }
 
   response.send(payload.get());
 });
 
 app.listen(config.server.port, config.server.host, async () => {
-  log.info(`Server listening on ${config.server.host}:${config.server.port}`);
+  log.info(`Login server listening on ${config.server.host}:${config.server.port}`);
 });
 
 process.on('uncaughtException', error => {

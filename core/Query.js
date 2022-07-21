@@ -15,53 +15,29 @@ class Query {
         });
 
         return payload;
+      } else {
+        return response[0];
       }
     } else {
       return null;
     }
   }
 
-  // async searchByField(section, value, fields) {
-  //   const response = await this._driver.searchByField(section, value);
+  async updateRow(section, id, data) {
+    const [rowUpdated] = await this._driver.updateRow(section, id, data);
 
-  //   if (response.length > 0) {
-  //     return this._serialization.getPayload(response, fields);
-  //   } else {
-  //     return null;
-  //   }
-  // }
+    if (rowUpdated.changedRows > 0) {
+      const response = await this._driver.getRowsByField(section, 'id', id);
 
-  // async add(section, data) {
-  //   const serializatedData = {};
-
-  //   for(const key in data) {
-  //     const value = data[key] === undefined ? null : data[key];
-
-  //     serializatedData[this._serialization.getSerializatedInput(key, section)] = value;
-  //   }		
-
-  //   await this._driver.add(section, serializatedData);
-  // }
-
-  // async edit(section, id, fields) {
-  //   const serializatedFields = {}
-    
-  //   for(const field in fields) {
-  //     serializatedFields[this._serialization.getSerializatedInput(field, section)] = fields[field];
-  //   }
-
-  //   await this._driver.edit(section, id, serializatedFields);
-  // }
-
-  // async getSectionData(section) {
-  //   const response = await this._driver.getSectionData(section);
-
-  //   if (response.length > 0) {
-  //     return this._serialization.getPayload(response);
-  //   } else {
-  //     return null;
-  //   }
-  // }
+      if (response.length > 0) {
+        return response[0];
+      } else {
+        return false;
+      }
+    } else {
+      return false;
+    }
+  }
 }
 
 module.exports = Query;
