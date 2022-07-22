@@ -1,13 +1,14 @@
 const express = require('express');
 const helmet = require('helmet');
-const jwt = require('jsonwebtoken');
 const cors = require('cors');
 const { json } = require('body-parser');
 
 const Users = require('./core/Users');
 const Payload = require('./core/Payload');
 const RequiredFields = require('./core/RequiredFields');
-const ServiceResponse = require('./core/ServiceResponse');
+const responseService = require('./core/ResponseService');
+const passwordService = require('./core/PasswordService');
+const jwtService = require('./core/JwtService');
 const log = require('./core/Log');
 const config = require('./config/app');
 const db = require('./core/db');
@@ -15,20 +16,19 @@ const db = require('./core/db');
 // init
 const app = express();
 const users = new Users();
-const serviceResponse = new ServiceResponse();
 
 app.use(helmet());
 app.use(cors());
-app.use(serviceResponse.checkHeaders('content-type', ['POST']));
+app.use(responseService.checkHeaders('content-type', ['POST']));
 app.use(json());
-app.use(serviceResponse.checkInvalidJSON);
+app.use(responseService.checkInvalidJSON);
 
 app.post('/auth/', async (request, response) => {
   const login = request.body.login.toLowerCase();
   const password = request.body.password;
   const payload = new Payload();
   const requiredFields = new RequiredFields(RequiredFields.auth.login, { login, password });
-    
+
   if (!requiredFields.state) {
     payload.add('status', 'error');
     payload.add('message', requiredFields.message);
@@ -36,16 +36,16 @@ app.post('/auth/', async (request, response) => {
 
     return;
   }
-
+  
   const user = await users.find('login', login);
 
-  if (user && user.comparePassword(password)) {
-    const token = jwt.sign({ id: user.id }, 'key');
-    const response = await user.update({ token });
+  if (user && await user.comparePassword(password)) {
+    const token = jwtService.createToken({ id: user.id });
+    const data = await user.update({ token });
 
-    if (response) {
+    if (data) {
       payload.add('status', 'success');
-      payload.add('data', { token: response.token });
+      payload.add('data', { token: data.token });
     } else {
       payload.add('status', 'error');
       payload.add('message', 'User update error.');

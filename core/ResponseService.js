@@ -1,7 +1,7 @@
 const config = require('./../config/app');
 const Payload = require('./Payload');
 
-class ServiceResponse {
+class ResponseService {
   checkHeaders(type, methods) {
     return (request, response, next) => {
       const payload = new Payload();
@@ -36,4 +36,4 @@ class ServiceResponse {
   }
 }
 
-module.exports = ServiceResponse;
+module.exports = new ResponseService();

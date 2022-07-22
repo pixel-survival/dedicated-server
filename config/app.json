@@ -17,5 +17,8 @@
       "connectionLimit": 10,
       "queueLimit": 0
     }
+  },
+  "password": {
+    "salt": 10
   }
 }
