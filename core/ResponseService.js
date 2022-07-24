@@ -5,7 +5,7 @@ class ResponseService {
   checkHeaders(type, methods) {
     return (request, response, next) => {
       const payload = new Payload();
-      const headerValues = config.server.requiredHeaders[type];
+      const headerValues = config.server.login.requiredHeaders[type];
       const notContainsHeaderType = !request.headers[type];
       const notContainsHeaderValue = !headerValues.some(headerValue => request.headers[type].includes(headerValue));
 

@@ -10,7 +10,7 @@ class User {
   }
 
   async update(fields) {
-    const response = await db.query.updateRow('users', this._id, fields);
+    const response = await db.data.updateRow('users', this._id, fields);
         
     if (response) {
       for(const key in response) {

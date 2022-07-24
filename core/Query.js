@@ -33,6 +33,18 @@ class Query {
     }
   }
 
+  async add(section, field, value) {
+    const response = await this._driver.add(section, field, value);
+
+    return response;
+  }
+
+  async get(section, field) {
+    const response = await this._driver.get(section, field);
+
+    return response;
+  }
+
   _getDataByFields(fields, data) {
     const payload = {};
 

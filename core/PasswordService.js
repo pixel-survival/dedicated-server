@@ -7,7 +7,7 @@ class PasswordService {
       bcrypt.genSalt(config.password.salt, (error, salt) => {
         if (error) {
           log.error('Salt not created');
-          reject(false);
+          resolve(false);
             
           return;
         }
@@ -15,7 +15,7 @@ class PasswordService {
         bcrypt.hash(password, salt, (error, hash) => {
           if (error) {
             log.error('Hash not created');
-            reject(false);
+            resolve(false);
             
             return;
           }
@@ -31,7 +31,7 @@ class PasswordService {
       bcrypt.compare(password, hash, (error, result) => {
         if (error) {
           log.error('Comparison error');
-          reject(false);
+          resolve(false);
 
           return;
         }

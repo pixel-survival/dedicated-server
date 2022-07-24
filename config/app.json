@@ -1,9 +1,11 @@
 {
   "server": {
-    "host": "localhost",
-    "port": 81,
-    "requiredHeaders": {
-      "content-type": ["application/json"]
+    "login": {
+      "host": "localhost",
+      "port": 81,
+      "requiredHeaders": {
+        "content-type": ["application/json"]
+      }
     }
   },
   "db": {
@@ -16,6 +18,13 @@
       "waitForConnections": true,
       "connectionLimit": 10,
       "queueLimit": 0
+    },
+    "redis": {
+      "socket": {
+        "host": "localhost",
+        "port": "6379",
+        "reconnectStrategy": 0
+      }
     }
   },
   "password": {

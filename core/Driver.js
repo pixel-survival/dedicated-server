@@ -1,10 +1,7 @@
-const log = require('./Log');
-
 class Driver {
   constructor(type, db) {
     this._type = type;
     this._db = db;
-    this._init();
   }
 
   get type() {
@@ -19,6 +16,18 @@ class Driver {
 
   async updateRow(section, id, data) {
     const response = await this._call('edit', { section, field: 'id', value: id, data });
+
+    return response;
+  }
+
+  async add(section, field, value) {
+    const response = await this._call('add', { section, field, value });
+
+    return response;
+  }
+
+  async get(section, field) {
+    const response = await this._call('get', { section, field });
 
     return response;
   }
@@ -49,17 +58,54 @@ class Driver {
     return response;
   }
 
-  async _init() {
-    this._db.query('SELECT 1', error => {
-      const host = this._db.config.connectionConfig.host;
-      const port = this._db.config.connectionConfig.port;
+  async _redis_add({ section, field, value }) {
+    const response = await this._db.set(`${section}:${field}`, value);
 
-      if (error) {
-        log.error(`No database connection on ${host}:${port}`);
-      } else {
-        log.info(`Database connected on ${host}:${port}`);
-      }
+    if (response === 'OK') {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  async _redis_get({ section, field }) {
+    const response = await this._db.get(`${section}:${field}`);
+
+    return response;
+  }
+
+  _checkMysqlConnection() {
+    return new Promise((resolve, reject) => {
+      this._db.query('SELECT 1', error => {        
+        if (error) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      });
     })
+  }
+
+  async _checkRedisConnection() {
+    return new Promise(async (resolve, reject) => {
+      this._db.on('error', () => {
+        resolve(false);
+      });
+      this._db.on('ready', () => {
+        resolve(true);
+      });
+  
+      await this._db.connect();
+    })
+  }
+
+  async checkConnection() {
+    switch(this._type) {
+      case 'mysql':
+        return await this._checkMysqlConnection();
+      case 'redis':
+        return await this._checkRedisConnection();
+    }
   }
 }
 

@@ -2,18 +2,13 @@ const express = require('express');
 const helmet = require('helmet');
 const cors = require('cors');
 const { json } = require('body-parser');
-
 const Users = require('./core/Users');
 const Payload = require('./core/Payload');
 const RequiredFields = require('./core/RequiredFields');
 const responseService = require('./core/ResponseService');
-const passwordService = require('./core/PasswordService');
 const jwtService = require('./core/JwtService');
 const log = require('./core/Log');
 const config = require('./config/app');
-const db = require('./core/db');
-
-// init
 const app = express();
 const users = new Users();
 
@@ -41,15 +36,9 @@ app.post('/auth/', async (request, response) => {
 
   if (user && await user.comparePassword(password)) {
     const token = jwtService.createToken({ id: user.id });
-    const data = await user.update({ token });
 
-    if (data) {
-      payload.add('status', 'success');
-      payload.add('data', { token: data.token });
-    } else {
-      payload.add('status', 'error');
-      payload.add('message', 'User update error.');
-    }
+    payload.add('status', 'success');
+    payload.add('data', { token });
   } else {
     payload.add('status', 'error');
     payload.add('message', 'Invalid login or password.');
@@ -58,12 +47,12 @@ app.post('/auth/', async (request, response) => {
   response.send(payload.get());
 });
 
-app.listen(config.server.port, config.server.host, async () => {
-  log.info(`Login server listening on ${config.server.host}:${config.server.port}`);
+app.listen(config.server.login.port, config.server.login.host, async () => {
+  log.info(`Login server listening on ${config.server.login.host}:${config.server.login.port}`);
 });
 
 process.on('uncaughtException', error => {
   if (error.code === 'EADDRINUSE') {
-    log.error(`Error: address already in use ${config.server.host}:${config.server.port}`);
+    log.error(`Error: address already in use ${config.server.login.host}:${config.server.login.port}`);
   }
 });

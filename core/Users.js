@@ -3,7 +3,7 @@ const User = require('./User');
 
 class Users {
   async find(field, value) {
-    const row = await db.query.getRowByField('users', field, value);
+    const row = await db.data.getRowByField('users', field, value);
 
     if (row) {
       const user = new User(row);
