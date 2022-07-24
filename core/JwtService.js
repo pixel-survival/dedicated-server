@@ -17,13 +17,10 @@ class JwtService {
 
   verify(token) {
     try {
-      console.log(this._secretKey);
       return jwt.verify(token, this._secretKey);
     } catch(error) {
       return `${error.name}: ${error.message}`;
     }
-
-    
   }
 
   async _createSecretKey() {
