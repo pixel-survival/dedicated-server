@@ -13,7 +13,9 @@ class ResponseService {
         payload.add('status', 'error');
         payload.add('message', `Invalid header ${type}. Only: [${headers.join(', ')}]`);
 
-        return response.send(payload.get());
+        response.send(payload.get());
+
+        return;
       }
       
       next();
@@ -29,7 +31,9 @@ class ResponseService {
       payload.add('status', 'error');
       payload.add('message', 'Invalid JSON');
 
-      return response.send(payload.get());
+      response.send(payload.get());
+
+      return;
     }
   
     next();

@@ -9,19 +9,19 @@ const responseService = require('./core/ResponseService');
 const jwtService = require('./core/JwtService');
 const log = require('./core/Log');
 const config = require('./config/app');
-const loginServerInit = require('./utils/LoginServerInit');
-const app = express();
+const databases = require('./utils/Databases');
+const server = express();
 const users = new Users();
 
-loginServerInit.start();
+databases.connect();
 
-app.use(helmet());
-app.use(cors());
-app.use(responseService.checkHeaders('content-type', ['POST']));
-app.use(json());
-app.use(responseService.checkInvalidJSON);
+server.use(helmet());
+server.use(cors());
+server.use(responseService.checkHeaders('content-type', ['POST']));
+server.use(json());
+server.use(responseService.checkInvalidJSON);
 
-app.post('/auth/', async (request, response) => {
+server.post('/auth/', async (request, response) => {
   const login = request.body.login.toLowerCase();
   const password = request.body.password;
   const payload = new Payload();
@@ -50,7 +50,7 @@ app.post('/auth/', async (request, response) => {
   response.send(payload.get());
 });
 
-app.listen(config.server.login.port, config.server.login.host, async () => {
+server.listen(config.server.login.port, config.server.login.host, async () => {
   log.info(`Login server listening on ${config.server.login.host}:${config.server.login.port}`);
 });
 

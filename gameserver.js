@@ -1,16 +1,13 @@
-const { Server } = require('socket.io');
-const io = new Server({ cors: { origin: "*" } });
-const cache = require('./core/Cache');
 const config = require('./config/app');
+const { Server } = require('socket.io');
+const cache = require('./core/Cache');
 const jwtService = require('./core/JwtService');
+const databases = require('./utils/Databases');
+const server = new Server(config.server.game.socket);
 
-cache.connect(config.db.redis).then(async connected => {
-  if (connected) {
-    jwtService.secretKey = await cache.get('jwt:secretkey');
-  }
-});
+databases.connect();
 
-io.on('connection', socket => {
+server.on('connection', socket => {
   const token = socket.handshake.query.token;
   const verified = jwtService.verify(token);
 
@@ -27,4 +24,11 @@ io.on('connection', socket => {
   // }
 });
 
-io.listen(7777);
+server.listen(7777);
+
+process.on('uncaughtException', error => {
+  if (error.code === 'EADDRINUSE') {
+    log.error(`Error: address already in use ${config.server.login.host}:${config.server.login.port}`);
+    process.exit();
+  }
+});

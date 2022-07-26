@@ -6,6 +6,13 @@
       "requiredHeaders": {
         "content-type": ["application/json"]
       }
+    },
+    "game": {
+      "socket": {
+        "cors": {
+          "origin": "*"
+        }
+      }
     }
   },
   "db": {

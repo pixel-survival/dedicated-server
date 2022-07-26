@@ -4,8 +4,8 @@ const config = require('./../config/app');
 const jwtService = require('./../core/JwtService');
 const log = require('./../core/Log');
 
-class LoginServerInit {
-  async start() {
+class Databases {
+  async connect() {
     const connectedCache = await this._checkConnectionCache();
     const connectedDatabase = await this._checkConnectionDatabase();
 
@@ -55,4 +55,4 @@ class LoginServerInit {
   }
 }
 
-module.exports = new LoginServerInit();
+module.exports = new Databases();
