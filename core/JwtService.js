@@ -1,12 +1,8 @@
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
-const db = require('./db');
 
 class JwtService {
   constructor() {
-    this._secretKey = null;
-
-    db.on('database:connected', this._onDatabaseConnected.bind(this));
+    this._secretKey = null;;
   }
 
   createToken(params) {
@@ -23,25 +19,8 @@ class JwtService {
     }
   }
 
-  async _createSecretKey() {
-    const secretKey = crypto.randomBytes(256).toString('base64');
-    const response = await db.cache.add('jwt', 'secretkey', secretKey);
-
-    return response;
-  }
-
-  async _onDatabaseConnected() {
-    const secretKey = await db.cache.get('jwt', 'secretkey');
-
-    if (secretKey === null) {
-      const response = await this._createSecretKey();
-
-      if (response) {
-        this._secretKey =  await db.cache.get('jwt', 'secretkey');
-      }
-    } else {
-      this._secretKey = secretKey;
-    }
+  set secretKey(value) {
+    this._secretKey = value;
   }
 }
 

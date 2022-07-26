@@ -9,8 +9,11 @@ const responseService = require('./core/ResponseService');
 const jwtService = require('./core/JwtService');
 const log = require('./core/Log');
 const config = require('./config/app');
+const loginServerInit = require('./utils/LoginServerInit');
 const app = express();
 const users = new Users();
+
+loginServerInit.start();
 
 app.use(helmet());
 app.use(cors());

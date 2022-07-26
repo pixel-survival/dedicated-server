@@ -16,11 +16,9 @@ class PasswordService {
           if (error) {
             log.error('Hash not created');
             resolve(false);
-            
-            return;
+          } else {
+            resolve(hash);
           }
-
-          resolve(hash);
         });
       });   
     });
@@ -32,13 +30,11 @@ class PasswordService {
         if (error) {
           log.error('Comparison error');
           resolve(false);
-
-          return;
-        }
-
-        resolve(result);
+        } else {
+          resolve(result);
+        }        
       });
-    })
+    });
   }
 }
 
