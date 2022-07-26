@@ -57,5 +57,6 @@ app.listen(config.server.login.port, config.server.login.host, async () => {
 process.on('uncaughtException', error => {
   if (error.code === 'EADDRINUSE') {
     log.error(`Error: address already in use ${config.server.login.host}:${config.server.login.port}`);
+    process.exit();
   }
 });
