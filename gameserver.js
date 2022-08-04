@@ -3,16 +3,18 @@ const { Server } = require('socket.io');
 const cache = require('./core/Cache');
 const jwtService = require('./core/JwtService');
 const databases = require('./utils/Databases');
+const database = require('./core/Database');
 const server = new Server(config.server.game.socket);
 
 databases.connect();
 
-server.on('connection', socket => {
+server.on('connection', async socket => {
   const token = socket.handshake.query.token;
   const verified = jwtService.verify(token);
+  const user = await database.getRowByField('users', 'id', verified.id, ['login', 'x', 'y']);
 
-  console.log(verified);
-  socket.emit('auth', 'success');
+  console.log(user);
+  socket.emit('auth', user);
   // try {
     
 
