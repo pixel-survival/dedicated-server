@@ -5,7 +5,8 @@ class User {
     this._id = params.id;
     this._login = params.login;
     this._passwordHash = params.password;
-    this._token = params.token;
+    this._x = params.x;
+    this._y = params.y;
   }
 
   async comparePassword(password) {
@@ -16,6 +17,18 @@ class User {
 
   get id() {
     return this._id;
+  }
+
+  get login() {
+    return this._login;
+  }
+
+  get x() {
+    return this._x;
+  }
+
+  get y() {
+    return this._y;
   }
 }
 

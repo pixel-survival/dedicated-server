@@ -38,7 +38,7 @@ server.post('/auth/', async (request, response) => {
   const user = await users.find('login', login);
 
   if (user && await user.comparePassword(password)) {
-    const token = jwtService.createToken({ id: user.id });
+    const token = jwtService.createToken({ userId: user.id });
 
     payload.add('status', 'success');
     payload.add('data', { token });
