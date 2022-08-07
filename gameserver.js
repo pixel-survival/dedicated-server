@@ -1,6 +1,7 @@
 const config = require('./config/app');
 const { Server } = require('socket.io');
 const Users = require('./core/Users');
+const libs = require('./utils/Libs');
 const jwtService = require('./core/JwtService');
 const databases = require('./utils/Databases');
 const users = new Users();
@@ -13,9 +14,6 @@ server.on('connection', async socket => {
   const verified = jwtService.verify(token);
   const user = await users.find('id', verified.userId, ['id', 'login', 'x', 'y']);
 
-  let x = user.x;
-  let y = user.y;
-
   socket.on('world:enter', () => {
     socket.emit('world:entered', {
       user: {
@@ -27,42 +25,98 @@ server.on('connection', async socket => {
     });
   });
 
-  class Task {
-    move(x1, y1, x2, y2, callback) {
-      const angle = Math.floor(Math.atan2(y1 - y2, x1 - x2) * (180 / Math.PI) + 180);
-      
-      const x = Number((x1 + Math.cos(angle * Math.PI / 180)).toFixed(1));
-      const y = Number((y1 + Math.sin(angle * Math.PI / 180)).toFixed(1));
+  class Tasks {
+    constructor() {
+      this._objectIDs = {};
+    }
 
-      console.log(x1, y1, x2,y2)
-      // fix
-      if (Math.abs(x1 - x2) < 3 && Math.abs(y1 - y2) < 3 ) {
-        callback(x, y, 'finished');
+    move(id, startX, startY, endX, endY, callback) {
+      const DEST_AREA = 3;
+      let x1 = startX;
+      let y1 = startY;
+      let x2 = endX;
+      let y2 = endY;
 
-        return;
+      this._register(id, 'move');
+
+      this._tick(() => {
+        if (this._objectIDs[id] && this._objectIDs[id]['move'] === 'end') {
+          //
+          user._x = x1;
+          user._y = y1;
+          //
+
+          return false;
+        }
+
+        if (this._objectIDs[id] && this._objectIDs[id]['move'] === 'registered') {
+          this._objectIDs[id]['move'] = 'in_progress';
+        }
+
+        const atan2 = Math.atan2(y1 - y2, x1 - x2);
+        const angle = Math.floor(atan2 * (180 / Math.PI) + 180);
+        const deltaX = Math.abs(x1 - x2);
+        const deltaY = Math.abs(y1 - y2);
+        const cos = Math.cos(angle * Math.PI / 180);
+        const sin = Math.sin(angle * Math.PI / 180);
+        
+        x1 = libs.fixedNumber(x1 + cos, 1);
+        y1 = libs.fixedNumber(y1 + sin, 1);
+
+        if (deltaX < DEST_AREA && deltaY < DEST_AREA ) {
+          callback(x1, y1, 'finished');
+  
+          return false;
+        }
+
+        callback(x1, y1, 'running');
+      }, 10);
+    }
+
+    stop(id, task) {
+      if (this._objectIDs[id] && this._objectIDs[id][task]) {
+        this._objectIDs[id][task] = 'end';
+      }
+    }
+
+    _register(id, task) {
+      if (!this._objectIDs[id]) { 
+        this._objectIDs[id] = {}
       }
 
-      setTimeout(() => {
-        callback(x, y, 'running');
+      this._objectIDs[id][task] = 'registered';
+    }
 
-        this.move(x, y, x2, y2, callback);
-      }, 50);
+    _tick(callback, time) {
+      setTimeout(() => {
+        const response = callback();
+
+        if (response === false) {
+          return;
+        }
+
+        this._tick(callback, time);
+      }, time);
     }
   }
 
-  const task = new Task();
+  const tasks = new Tasks();
   
   socket.on('player:move', data => {
-    task.move(user.x, user.y, data.x, data.y, (x, y, status) => {
-      if (status === 'finished') {
-        user._x = x;
-        user._y = y;
-        console.log('finished')
-      }
-
-      socket.emit('player:moving', { id: user.id, x, y });
-    });
-  })
+    tasks.stop(user.id, 'move');
+    //
+    setTimeout(() => {
+      tasks.move(user.id, user.x, user.y, data.x, data.y, (x, y, status) => {
+        if (status === 'finished') {
+          user._x = x;
+          user._y = y;
+        }
+  
+        socket.emit('player:moving', { id: user.id, x, y });
+      });
+    }, 10);
+    //
+  });
   
     
 
