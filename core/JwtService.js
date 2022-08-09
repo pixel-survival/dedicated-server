@@ -15,7 +15,7 @@ class JwtService {
     try {
       return jwt.verify(token, this._secretKey);
     } catch(error) {
-      return `${error.name}: ${error.message}`;
+      return false;
     }
   }
 

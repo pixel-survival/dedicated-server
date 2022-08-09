@@ -1,125 +1,50 @@
 const config = require('./config/app');
 const { Server } = require('socket.io');
 const Users = require('./core/Users');
-const libs = require('./utils/Libs');
+const Tasks = require('./core/Tasks');
+
 const jwtService = require('./core/JwtService');
 const databases = require('./utils/Databases');
 const users = new Users();
+const tasks = new Tasks();
 const server = new Server(config.server.game.socket);
 
 databases.connect();
+
+// add antispam socket package
 
 server.on('connection', async socket => {
   const token = socket.handshake.query.token;
   const verified = jwtService.verify(token);
   const user = await users.find('id', verified.userId, ['id', 'login', 'x', 'y']);
 
-  socket.on('world:enter', () => {
-    socket.emit('world:entered', {
-      user: {
-        id: user.id,
-        login: user.login,
-        x: user.x,
-        y: user.y
-      }
-    });
-  });
-
-  class Tasks {
-    constructor() {
-      this._objectIDs = {};
-    }
-
-    move(id, startX, startY, endX, endY, callback) {
-      const DEST_AREA = 3;
-      let x1 = startX;
-      let y1 = startY;
-      let x2 = endX;
-      let y2 = endY;
-
-      this._register(id, 'move');
-      this._tick(() => {
-        const atan2 = Math.atan2(y1 - y2, x1 - x2);
-        const angle = Math.floor(atan2 * (180 / Math.PI) + 180);
-        const deltaX = Math.abs(x1 - x2);
-        const deltaY = Math.abs(y1 - y2);
-        const cos = Math.cos(angle * Math.PI / 180);
-        const sin = Math.sin(angle * Math.PI / 180);
-        
-        x1 = libs.fixedNumber(x1 + cos, 1);
-        y1 = libs.fixedNumber(y1 + sin, 1);
-
-        if (deltaX < DEST_AREA && deltaY < DEST_AREA ) {
-          callback(x1, y1, 'finished');
-  
-          return false;
+  if (verified) {
+    socket.on('world:enter', () => {
+      socket.emit('world:entered', {
+        user: {
+          id: user.id,
+          login: user.login,
+          x: user.x,
+          y: user.y
         }
-
-        callback(x1, y1, 'running');
-      }, 10, timeout => {
-        this._updateTimeoutInstance(id, 'move', timeout);
-        
-        callback(x1, y1, 'finished');
       });
-    }
-
-    stop(id, task) {
-      if (this._objectIDs[id] && this._objectIDs[id][task]) {
-        clearTimeout(this._objectIDs[id][task].timeout);
-      }
-    }
-
-    _register(id, task) {
-      if (!this._objectIDs[id]) { 
-        this._objectIDs[id] = {}
-        this._objectIDs[id][task] = {
-          timeout: null
-        }
-      }
-    }
-
-    _updateTimeoutInstance(id, task, timeout) {
-      this._objectIDs[id][task].timeout = timeout;
-    }
-
-    _tick(callback, time, timeoutCallback) {
-      const timeout = setTimeout(() => {
-        const response = callback();
-
-        if (response === false) {
-          return;
-        }
-
-        this._tick(callback, time, timeoutCallback);
-      }, time);
-
-      timeoutCallback(timeout);
-    }
-  }
-
-  const tasks = new Tasks();
-  
-  socket.on('player:move', data => {
-    tasks.stop(user.id, 'move');
-
-    tasks.move(user.id, user.x, user.y, data.x, data.y, (x, y, status) => {
-      if (status === 'finished') {
-        user._x = x;
-        user._y = y;
-      }
-
-      socket.emit('player:moving', { id: user.id, x, y});
     });
-  });
-  
     
-
-  //   if (verified) {
-  //     socket.emit('auth', 'success');
-  //   }
-  // } catch {
-  //   socket.emit('auth', 'error verify');
-  // }
+    socket.on('player:move', data => {
+      tasks.stop(user.id, 'move');
+  
+      tasks.move(user.id, user.x, user.y, data.x, data.y, 5, (x, y, status) => {
+        if (status === 'finished') {
+          user._x = x;
+          user._y = y;
+        }
+  
+        socket.emit('player:moving', { id: user.id, x, y});
+      });
+    });
+  } else {
+    socket.disconnect(true);
+  }
 });
 
 server.listen(7777);
