@@ -38,21 +38,7 @@ server.on('connection', async socket => {
       let y2 = endY;
 
       this._register(id, 'move');
-
       this._tick(() => {
-        if (this._objectIDs[id] && this._objectIDs[id]['move'] === 'end') {
-          //
-          user._x = x1;
-          user._y = y1;
-          //
-
-          return false;
-        }
-
-        if (this._objectIDs[id] && this._objectIDs[id]['move'] === 'registered') {
-          this._objectIDs[id]['move'] = 'in_progress';
-        }
-
         const atan2 = Math.atan2(y1 - y2, x1 - x2);
         const angle = Math.floor(atan2 * (180 / Math.PI) + 180);
         const deltaX = Math.abs(x1 - x2);
@@ -70,33 +56,44 @@ server.on('connection', async socket => {
         }
 
         callback(x1, y1, 'running');
-      }, 10);
+      }, 10, timeout => {
+        this._updateTimeoutInstance(id, 'move', timeout);
+        
+        callback(x1, y1, 'finished');
+      });
     }
 
     stop(id, task) {
       if (this._objectIDs[id] && this._objectIDs[id][task]) {
-        this._objectIDs[id][task] = 'end';
+        clearTimeout(this._objectIDs[id][task].timeout);
       }
     }
 
     _register(id, task) {
       if (!this._objectIDs[id]) { 
         this._objectIDs[id] = {}
+        this._objectIDs[id][task] = {
+          timeout: null
+        }
       }
-
-      this._objectIDs[id][task] = 'registered';
     }
 
-    _tick(callback, time) {
-      setTimeout(() => {
+    _updateTimeoutInstance(id, task, timeout) {
+      this._objectIDs[id][task].timeout = timeout;
+    }
+
+    _tick(callback, time, timeoutCallback) {
+      const timeout = setTimeout(() => {
         const response = callback();
 
         if (response === false) {
           return;
         }
 
-        this._tick(callback, time);
+        this._tick(callback, time, timeoutCallback);
       }, time);
+
+      timeoutCallback(timeout);
     }
   }
 
@@ -104,18 +101,15 @@ server.on('connection', async socket => {
   
   socket.on('player:move', data => {
     tasks.stop(user.id, 'move');
-    //
-    setTimeout(() => {
-      tasks.move(user.id, user.x, user.y, data.x, data.y, (x, y, status) => {
-        if (status === 'finished') {
-          user._x = x;
-          user._y = y;
-        }
-  
-        socket.emit('player:moving', { id: user.id, x, y });
-      });
-    }, 10);
-    //
+
+    tasks.move(user.id, user.x, user.y, data.x, data.y, (x, y, status) => {
+      if (status === 'finished') {
+        user._x = x;
+        user._y = y;
+      }
+
+      socket.emit('player:moving', { id: user.id, x, y});
+    });
   });
   
     
