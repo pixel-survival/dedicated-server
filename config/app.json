@@ -12,7 +12,8 @@
         "cors": {
           "origin": "*"
         }
-      }
+      },
+      "minRequestTime": 100
     }
   },
   "db": {

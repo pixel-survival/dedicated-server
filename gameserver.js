@@ -5,13 +5,14 @@ const Tasks = require('./core/Tasks');
 
 const jwtService = require('./core/JwtService');
 const databases = require('./utils/Databases');
+const setMinRequestTime = require('./utils/setMinRequestTime');
 const users = new Users();
 const tasks = new Tasks();
 const server = new Server(config.server.game.socket);
 
 databases.connect();
 
-// add antispam socket package
+setMinRequestTime(server, config.server.game.minRequestTime);
 
 server.on('connection', async socket => {
   const token = socket.handshake.query.token;
