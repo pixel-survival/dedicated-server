@@ -33,7 +33,6 @@ server.on('connection', async socket => {
     
     socket.on('player:move', data => {
       tasks.stop(user.id, 'move');
-  
       tasks.move(user.id, user.x, user.y, data.x, data.y, 5, (x, y, status) => {
         if (status === 'finished') {
           user._x = x;
