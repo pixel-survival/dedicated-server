@@ -21,14 +21,17 @@ server.on('connection', async socket => {
 
   if (verified) {
     socket.on('world:enter', () => {
-      socket.emit('world:entered', {
+      const payload = {
         user: {
           id: user.id,
           login: user.login,
           x: user.x,
           y: user.y
         }
-      });
+      }
+
+      socket.emit('world:welcome', payload);
+      socket.emit('world:entered', payload);
     });
     
     socket.on('player:move', data => {
@@ -37,9 +40,10 @@ server.on('connection', async socket => {
         if (status === 'finished') {
           user._x = x;
           user._y = y;
+          socket.emit('player:moving', { id: user.id, x, y });
         }
-  
-        socket.emit('player:moving', { id: user.id, x, y});
+
+        socket.emit('player:moving', { id: user.id, x, y });
       });
     });
   } else {
