@@ -31,7 +31,7 @@ server.on('connection', async socket => {
       }
 
       socket.emit('world:welcome', payload);
-      socket.emit('world:entered', payload);
+      socket.broadcast.emit('world:entered', payload);
     });
     
     socket.on('player:move', data => {
@@ -40,10 +40,11 @@ server.on('connection', async socket => {
         if (status === 'finished') {
           user._x = x;
           user._y = y;
-          socket.emit('player:moving', { id: user.id, x, y });
+          
+          server.emit('player:moving', { id: user.id, x, y });
         }
 
-        socket.emit('player:moving', { id: user.id, x, y });
+        server.emit('player:moving', { id: user.id, x, y });
       });
     });
   } else {
