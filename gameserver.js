@@ -2,12 +2,15 @@ const config = require('./config/app');
 const { Server } = require('socket.io');
 const Users = require('./core/Users');
 const Tasks = require('./core/Tasks');
+const Players = require('./core/Players');
 
+const log = require('./core/Log');
 const jwtService = require('./core/JwtService');
 const databases = require('./utils/Databases');
 const setMinRequestTime = require('./utils/setMinRequestTime');
 const users = new Users();
 const tasks = new Tasks();
+const players = new Players();
 const server = new Server(config.server.game.socket);
 
 databases.connect();
@@ -21,20 +24,23 @@ server.on('connection', async socket => {
 
   if (verified) {
     socket.on('world:enter', () => {
+      const player = players.add(user);
       const payload = {
-        user: {
-          id: user.id,
-          login: user.login,
-          x: user.x,
-          y: user.y
+        welcome: {
+          player,
+          players: players.getPlayersExceptId(user.id)
+        },
+        entered: {
+          player
         }
       }
 
-      socket.emit('world:welcome', payload);
-      socket.broadcast.emit('world:entered', payload);
+      socket.emit('world:welcome', payload.welcome);
+      socket.broadcast.emit('world:entered', payload.entered);
     });
     
     socket.on('player:move', data => {
+      // user => player
       tasks.stop(user.id, 'move');
       tasks.move(user.id, user.x, user.y, data.x, data.y, 5, (x, y, status) => {
         if (status === 'finished') {
@@ -57,6 +63,9 @@ server.listen(7777);
 process.on('uncaughtException', error => {
   if (error.code === 'EADDRINUSE') {
     log.error(`Error: address already in use ${config.server.login.host}:${config.server.login.port}`);
-    process.exit();
+  } else {
+    log.normal(error);
   }
+
+  process.exit();
 });
