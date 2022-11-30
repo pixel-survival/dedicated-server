@@ -7,11 +7,11 @@ class ResponseService {
       const payload = new Payload();
       const headerValues = config.server.login.requiredHeaders[type];
       const notContainsHeaderType = !request.headers[type];
-      const notContainsHeaderValue = !headerValues.some(headerValue => request.headers[type].includes(headerValue));
+      const notContainsHeaderValue = !headerValues.some(headerValue => request.headers[type] === headerValue);
 
       if ((notContainsHeaderType || notContainsHeaderValue) && methods.includes(request.method)) {
         payload.add('status', 'error');
-        payload.add('message', `Invalid header ${type}. Only: [${headers.join(', ')}]`);
+        payload.add('message', `Invalid header ${type}. Only: [${headerValues.join(', ')}]`);
 
         response.send(payload.get());
 
