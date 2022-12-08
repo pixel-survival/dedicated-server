@@ -13,6 +13,7 @@
           "origin": "*"
         }
       },
+      "port": 7777,
       "minRequestTime": 100
     }
   },

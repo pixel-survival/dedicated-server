@@ -13,8 +13,6 @@ const databases = require('./utils/Databases');
 const server = express();
 const users = new Users();
 
-databases.connect();
-
 server.use(helmet());
 server.use(cors());
 server.use(responseService.checkHeaders('content-type', ['POST']));
@@ -50,9 +48,11 @@ server.post('/auth/', async (request, response) => {
   response.send(payload.get());
 });
 
-server.listen(config.server.login.port, config.server.login.host, async () => {
+server.listen(config.server.login.port, config.server.login.host, () => {
   log.info(`Login server listening on ${config.server.login.host}:${config.server.login.port}`);
 });
+
+databases.connect();
 
 process.on('uncaughtException', error => {
   if (error.code === 'EADDRINUSE') {

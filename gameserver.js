@@ -13,8 +13,6 @@ const tasks = new Tasks();
 const players = new Players();
 const server = new Server(config.server.game.socket);
 
-databases.connect();
-
 setMinRequestTime(server, config.server.game.minRequestTime);
 
 server.on('connection', async socket => {
@@ -58,11 +56,17 @@ server.on('connection', async socket => {
   }
 });
 
-server.listen(7777);
+server.listen(config.server.game.port);
+
+server.httpServer.on('listening', () => {
+  log.info(`Game server listening on localhost:${config.server.game.port}`);
+});
+
+databases.connect();
 
 process.on('uncaughtException', error => {
   if (error.code === 'EADDRINUSE') {
-    log.error(`Error: address already in use ${config.server.login.host}:${config.server.login.port}`);
+    log.error(`Error: address already in use localhost:${config.server.game.port}`);
   } else {
     log.normal(error);
   }
