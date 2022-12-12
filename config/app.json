@@ -1,7 +1,7 @@
 {
   "server": {
+    "name": "Pixel survival official server",
     "login": {
-      "host": "localhost",
       "port": 81,
       "requiredHeaders": {
         "content-type": ["application/json"]
@@ -15,6 +15,11 @@
       },
       "port": 7777,
       "minRequestTime": 100
+    },
+    "master": {
+      "host": "localhost",
+      "port": 7000,
+      "publish": true
     }
   },
   "db": {

@@ -48,15 +48,15 @@ server.post('/auth/', async (request, response) => {
   response.send(payload.get());
 });
 
-server.listen(config.server.login.port, config.server.login.host, () => {
-  log.info(`Login server listening on ${config.server.login.host}:${config.server.login.port}`);
+server.listen(config.server.login.port, 'localhost', () => {
+  log.info(`Login server listening on localhost:${config.server.login.port}`);
 });
 
 databases.connect();
 
 process.on('uncaughtException', error => {
   if (error.code === 'EADDRINUSE') {
-    log.error(`Error: address already in use ${config.server.login.host}:${config.server.login.port}`);
+    log.error(`Error: address already in use localhost:${config.server.login.port}`);
   } else {
     log.normal(error);
   }

@@ -1,5 +1,5 @@
 {
-  "name": "ps-server",
+  "name": "ps-dedicated-server",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
@@ -17,6 +17,7 @@
     "helmet": "^5.1.0",
     "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.3.3",
+    "node-fetch": "^2.6.7",
     "redis": "^4.2.0",
     "socket.io": "^4.5.1"
   }

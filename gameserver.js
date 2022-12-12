@@ -3,11 +3,11 @@ const { Server } = require('socket.io');
 const Users = require('./core/Users');
 const Tasks = require('./core/Tasks');
 const Players = require('./core/Players');
-
 const log = require('./core/Log');
 const jwtService = require('./core/JwtService');
 const databases = require('./utils/Databases');
 const setMinRequestTime = require('./utils/setMinRequestTime');
+const publishServer = require('./utils/publishServer');
 const users = new Users();
 const tasks = new Tasks();
 const players = new Players();
@@ -63,6 +63,10 @@ server.httpServer.on('listening', () => {
 });
 
 databases.connect();
+
+if (config.server.master.publish) {
+  publishServer();
+}
 
 process.on('uncaughtException', error => {
   if (error.code === 'EADDRINUSE') {
